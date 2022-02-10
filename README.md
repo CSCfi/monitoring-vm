@@ -10,6 +10,17 @@ This project is an example VM defined using [`Terraform`](https://www.terraform.
 
 ## Installation
 
+### Pouta credentials
+
+The easiest way to obtain your credentials and allow `Terraform` manage your resources just download `OpenStack RC File` from the dropdown menu in the upeer right corner on https://pouta.csc.fi
+After downloading just use it like that:
+
+    -> source <project>-openrc.sh
+
+and it will ask for your password and set your environment correctly. Remember to switch to a proper project before downloading the file.
+
+### Installations steps
+
 To actually use everything included here, after cloning the repository unlock the secrets with
 
     -> git-crypt unlock
