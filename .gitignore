@@ -1,0 +1,10 @@
+# Temporary files
+*~
+
+# Terraform state and a like
+.terraform
+*.tfstate
+
+# Our local/temp files
+tf-backend.tfvars
+server-name.auto.tfvars
