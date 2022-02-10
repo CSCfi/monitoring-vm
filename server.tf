@@ -53,23 +53,29 @@ resource "openstack_compute_keypair_v2" "instance_keypair" {
   public_key = join("\n", [file("~/.ssh/id_rsa.pub"), file("secrets/public_keys")])
 }
 
+locals {
+  # Configuration of the instance
+  cloud_init = templatefile(
+    "cloud-config.tpl",
+    {
+      setup_sha512     = base64encode(sha512(file("secrets/setup.sh"))),
+      ed25519_private  = indent(4, file("secrets/ssh/ssh_host_ed25519_key")),
+      ed25519_public   = file("secrets/ssh/ssh_host_ed25519_key.pub"),
+    })
+}
+
 # The actual VM is defined here
 resource "openstack_compute_instance_v2" "instance" {
   name = "${var.instance_name}"
   image_name = "Ubuntu-20.04"
   flavor_name = "standard.tiny"
   key_pair = "${openstack_compute_keypair_v2.instance_keypair.name}"
+  user_data = local.cloud_init
   security_groups = [
     openstack_networking_secgroup_v2.security_group.name,
   ]
   network {
     uuid = "${openstack_networking_network_v2.instance_net.id}"
-  }
-  # Personality in this case is just a cool trick to force re-deployment
-  # upon changes to the provision script
-  personality {
-    file = "/etc/setup.sha512"
-    content = sha512(file("secrets/setup.sh"))
   }
   # Pouta API refuses to create the instance unless the subnet is ready to go
   depends_on = [
