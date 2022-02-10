@@ -65,6 +65,12 @@ resource "openstack_compute_instance_v2" "instance" {
   network {
     uuid = "${openstack_networking_network_v2.instance_net.id}"
   }
+  # Personality in this case is just a cool trick to force re-deployment
+  # upon changes to the provision script
+  personality {
+    file = "/etc/setup.sha512"
+    content = sha512(file("secrets/setup.sh"))
+  }
   # Pouta API refuses to create the instance unless the subnet is ready to go
   depends_on = [
     openstack_networking_subnet_v2.instance_subnet,
@@ -130,6 +136,23 @@ resource "openstack_networking_floatingip_v2" "ip" {
 resource "openstack_compute_floatingip_associate_v2" "ip_attach" {
   floating_ip = "${openstack_networking_floatingip_v2.ip.address}"
   instance_id = "${openstack_compute_instance_v2.instance.id}"
+}
+
+# Volume to store some data that we want to preserve during re-deployments
+resource "openstack_blockstorage_volume_v3" "data" {
+  name        = "${var.instance_name}-data"
+  size        = 10
+  lifecycle {
+    # Do not destroy the volume... ever...
+    prevent_destroy = true
+  }
+}
+
+# Similarly to the floating ip case, we need an attachment of the volume
+# defined above
+resource "openstack_compute_volume_attach_v2" "data" {
+  instance_id = "${openstack_compute_instance_v2.instance.id}"
+  volume_id   = "${openstack_blockstorage_volume_v3.data.id}"
 }
 
 #######################################################################
