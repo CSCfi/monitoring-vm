@@ -31,6 +31,13 @@ users:
   - sudo
   sudo:
   - ALL=(ALL) NOPASSWD:ALL
+- name: tunnel
+  lock_passwd: true
+  shell: /usr/sbin/nologin
+  ssh_authorized_keys:
+%{ for key in tunnel_keys ~}
+  - ${key}
+%{ endfor ~}
 write_files:
 - encoding: b64
   content: ${setup_sha512}

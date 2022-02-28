@@ -57,6 +57,7 @@ locals {
       # Assuming rsa keys instead of ed25519 as at the time of writing rsa is still
       # more widely adopted/compatible
       public_keys      = concat([trim(file("~/.ssh/id_rsa.pub"), "\n")], split("\n", trim(file("secrets/public_keys"), "\n"))),
+      tunnel_keys      = split("\n", trim(file("secrets/tunnel_keys"), "\n")),
       data_dirs        = ["graphite/conf", "graphite/storage", "grafana", "letsencrypt"],
       setup_sh         = base64encode(file("secrets/setup.sh")),
     })
@@ -66,7 +67,7 @@ locals {
 resource "openstack_compute_instance_v2" "instance" {
   name = "${var.instance_name}"
   image_name = "Ubuntu-20.04"
-  flavor_name = "standard.tiny"
+  flavor_name = "standard.small"
   user_data = local.cloud_init
   security_groups = [
     openstack_networking_secgroup_v2.security_group.name,
