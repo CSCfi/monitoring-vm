@@ -126,7 +126,7 @@ resource "openstack_compute_floatingip_associate_v2" "ip_attach" {
 # Volume to store some data that we want to preserve during re-deployments
 resource "openstack_blockstorage_volume_v3" "data" {
   name        = "${var.instance_name}-data"
-  size        = 10
+  size        = 100
   lifecycle {
     # Do not destroy the volume... ever...
     prevent_destroy = true
