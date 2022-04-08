@@ -108,6 +108,10 @@ resource "openstack_networking_router_interface_v2" "interface" {
 resource "openstack_networking_floatingip_v2" "ip" {
   pool = "public"
   depends_on = [openstack_networking_router_interface_v2.interface]
+  lifecycle {
+    # Protect the public IP
+    prevent_destroy = true
+  }
 }
 
 # Attachment of the IP to the instance. It is important to realize why
