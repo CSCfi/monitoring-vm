@@ -187,6 +187,16 @@ resource "openstack_networking_secgroup_rule_v2" "https-in" {
   security_group_id = "${openstack_networking_secgroup_v2.security_group.id}"
 }
 
+resource "openstack_networking_secgroup_rule_v2" "graphite-proxy-in" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 6443
+  port_range_max    = 6443
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = "${openstack_networking_secgroup_v2.security_group.id}"
+}
+
 # Subnet for the VM. On Pouta all VMs need to be in subnets to boot properly
 resource "openstack_networking_subnet_v2" "instance_subnet" {
   name = "${var.instance_name}-subnet"
